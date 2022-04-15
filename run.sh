@@ -1,1 +1,1 @@
-mvn scala:run -DmainClass=playground.ScalaPlayground
+mvn scala:run -DmainClass=lectures.part1as.Recap -q
