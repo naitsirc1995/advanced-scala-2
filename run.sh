@@ -1,1 +1,1 @@
-mvn scala:run -DmainClass=lectures.part1as.Recap -q
+mvn scala:run -DmainClass=lectures.part1as.DarkSugars -q
