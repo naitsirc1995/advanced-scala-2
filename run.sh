@@ -1,1 +1,1 @@
-mvn scala:run -DmainClass=lectures.part1as.AdvancedPatternMatching -q
+mvn scala:run -DmainClass=lectures.part2fp.PartialFunctions -q
