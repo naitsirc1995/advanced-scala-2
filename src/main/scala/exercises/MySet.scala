@@ -20,6 +20,23 @@ trait MySet[A] extends (A => Boolean) {
   def flatMap[B](f:A => MySet[B]):MySet[B]
   def filter(predicate: A=>Boolean):MySet[A]
   def foreach(f:A=>Unit):Unit
+
+  /*
+  EXERCISE #2
+  - Removing an element
+  - Intersection with another set
+  - difference with another set
+  * */
+  def -(element:A):MySet[A]
+  def &(anotherSet:MySet[A]):MySet[A]
+  def --(anotherSet:MySet[A]):MySet[A]
+
+  /*
+  EXERCISE #3 - implemente a unary_! = NEGATION of a set
+  set[1,2,3]
+  * */
+
+  def unary_! : MySet[A]
 }
 
 
@@ -33,6 +50,37 @@ class EmptySet[A] extends MySet[A] {
   override def flatMap[B](f: A => MySet[B]): MySet[B] = new EmptySet[B]
   override def filter(predicate: A => Boolean): MySet[A] = this
   override def foreach(f: A => Unit): Unit = ()
+
+  override def -(element: A): MySet[A] = this
+  override def &(anotherSet: MySet[A]): MySet[A] = this
+  override def --(anotherSet: MySet[A]): MySet[A] = this
+
+  override def unary_! : MySet[A] = new AllInclusiveSet[A]
+}
+
+
+class AllInclusiveSet[A] extends MySet[A] {
+  override def contains(elem: A): Boolean = true
+  override def +(elem: A): MySet[A] = this
+  override def ++(anotherSet: MySet[A]): MySet[A] = this
+
+  //naturals =  AllInclusiveSet[Int] = all the natural numbers
+  // naturals.map(x => x%3) => ???
+  // [0 1 2]
+  override def map[B](f: A => B): MySet[B] = ???
+  override def flatMap[B](f: A => MySet[B]): MySet[B] = ???
+  override def foreach(f: A => Unit): Unit = ???
+
+  override def filter(predicate: A => Boolean): MySet[A] = ??? // property-based set
+  override def -(element: A): MySet[A] = ???
+  override def --(anotherSet: MySet[A]): MySet[A] = filter(!anotherSet)
+  override def &(anotherSet: MySet[A]): MySet[A] = filter(anotherSet)
+
+  override def unary_! : MySet[A] = new EmptySet[A]
+}
+
+class PropertyBasedSet[A](property: A=>Boolean) extends MySet[A] {
+
 }
 
 
@@ -65,6 +113,20 @@ class NonEmptySet[A](head:A,tail:MySet[A]) extends MySet[A] {
     f(head)
     tail.foreach(f)
   }
+
+
+  override def -(element: A): MySet[A] =
+    if (head == element) tail
+    else tail - element + head
+
+  override def &(anotherSet: MySet[A]): MySet[A] =
+    filter(anotherSet) // remember that another set is also a f:A-Boolean function
+
+  override def --(anotherSet: MySet[A]): MySet[A] =
+    this.filter(value => (!anotherSet(value)))
+
+
+  override def unary_! : MySet[A] = ???
 }
 
 
@@ -82,4 +144,17 @@ object MySet {
 object MySetPlayground extends App {
   val s = MySet(1,2,3,4)
   s + 5 ++  MySet(-1,-2) + 3 map (_*10) flatMap ( x => MySet(x,10*x) ) filter (_%2 == 0) foreach println
+
+  println("Proving the implementation of the first operation")
+  s - 2 foreach println
+
+  println("Proving the implementation of the second operation")
+  s & MySet(1,3,5) foreach println
+
+  println("Proving the implementation of the third operation")
+  s -- MySet(1,3) foreach println
+
+
+
+
 }
