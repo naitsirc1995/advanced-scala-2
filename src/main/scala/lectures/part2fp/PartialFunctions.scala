@@ -2,5 +2,118 @@ package lectures.part2fp
 
 object PartialFunctions extends App
 {
-  println("This will make all the difference of the world !!!")
+  class FunctionNotApplicableException extends RuntimeException
+
+
+  val aFunction = (x:Int) => x+1 // Function1[Int,Int] === Int => Int
+  val aFussyFunction = (x:Int) =>
+    if (x==1) 42
+    else if (x == 2) 56
+    else if (x == 5) 999
+    else throw new FunctionNotApplicableException
+
+
+  val aNicerFussyFunction = (x:Int) => x match {
+    case 1 => 42
+    case 2 => 56
+    case 5 => 999
+  }
+
+  // {1,2,5} => Int
+
+  val aPartialFunction:PartialFunction[Int,Int] = {
+    case 1 => 42
+    case 2 => 56
+    case 5 => 999
+  } // partial function value
+
+  println(aPartialFunction(2))
+  //println(aPartialFunction(57273))
+
+  // PF utilities
+  println(aPartialFunction.isDefinedAt(67))
+
+  // lift
+  val lifted = aPartialFunction.lift
+  println(lifted(2))
+  println(lifted(98))
+
+
+  val pfChain = aPartialFunction.orElse[Int,Int]{
+    case 45 => 67
+  }
+
+  println(pfChain(2))
+  println(pfChain(45))
+
+  // PF extend normal functions
+  val aTotalFunction: Int => Int = {
+    case 1 => 99
+  }
+
+  // HOFs accept partial functions as well
+  val aMappedList = List(1,2,3).map {
+    case 1 => 42
+    case 2 => 78
+    case 3 => 1000
+  }
+
+  println(aMappedList)
+
+  /*
+  Note: PF can only have ONE parameter type
+  * */
+
+  /*
+  1 - Construct a PF instance yourself (anonymous class)
+  2 - dumb chatbot as a PF
+
+  * */
+
+  //scala.io.Source.stdin.getLines().foreach(line => println("You said: "+line))
+
+  val mySolutionPF:PartialFunction[Int,Int] = new PartialFunction[Int,Int] {
+    override def isDefinedAt(x: Int): Boolean = x match {
+      case 1 => true
+      case 2 => true
+      case 5 => true
+      case _ => false
+    }
+
+    override def apply(v1: Int): Int = v1*10
+  }
+
+  println("My solution for a partial functions")
+  println(mySolutionPF(5))
+
+  val myDumbChatbot:PartialFunction[String,String] = {
+    case "hi" => "hi back !!"
+    case "good bye" => "good bye back !!"
+    case "how are you" => "I don't know !!"
+  }
+
+  //scala.io.Source.stdin.getLines().foreach(line => println(myDumbChatbot(line)))
+
+  // Now the instructor's solution
+  println("Now the instructor's solution")
+
+
+  val aManualFussyFunction = new PartialFunction[Int,Int] {
+    override def apply(x: Int): Int = x match {
+      case 1 => 42
+      case 2 => 65
+      case 5 => 999
+    }
+
+    override def isDefinedAt(x: Int): Boolean =
+      x == 1 || x == 2 || x == 5
+  }
+
+  val chatbot:PartialFunction[String,String] = {
+    case "hello" => "Hi, my name is HAL9000"
+    case "goodbye" => "Once you start talking to me, there is no return, human!"
+    case "call mom" => "Unable to find your phone without your credit card"
+  }
+
+  scala.io.Source.stdin.getLines().map(chatbot).foreach(println)
 }
