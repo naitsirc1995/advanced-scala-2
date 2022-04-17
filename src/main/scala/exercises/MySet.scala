@@ -79,9 +79,9 @@ class AllInclusiveSet[A] extends MySet[A] {
   override def unary_! : MySet[A] = new EmptySet[A]
 }
 
-class PropertyBasedSet[A](property: A=>Boolean) extends MySet[A] {
-
-}
+//class PropertyBasedSet[A](property: A=>Boolean) extends MySet[A] {
+//
+//}
 
 
 class NonEmptySet[A](head:A,tail:MySet[A]) extends MySet[A] {
