@@ -1,1 +1,1 @@
-mvn scala:run -DmainClass=lectures.part2fp.CurriesPAF -q
+mvn scala:run -DmainClass=lectures.part2fp.LazyEvaluation -q
