@@ -23,13 +23,140 @@ object LazyEvaluation extends App
   println(if(simpleCondition && lazyCondition) "yes" else "no")
 
   // in conjunction with call by name
-  def byNameMethod(n: =>Int):Int = n + n + n + 1
+  def byNameMethod(n: =>Int):Int = {
+    lazy val t = n
+    t + t + t + 1 // only evaluated once
+  }
   def retriveMagicValue = {
     // side effect or a long computation
+    println("waiting")
     Thread.sleep(1000)
     42
   }
 
   println(byNameMethod(retriveMagicValue))
-  // I think the side effect will happen only once. Maybe.
+  // use lazy vals
+
+  // filtering with lazy vals
+  def lessThan30(i:Int):Boolean = {
+    println(s"$i is less than 30?")
+    i<30
+  }
+
+  def greaterThan20(i:Int):Boolean = {
+    println(s"$i is less than 20?")
+    i>20
+  }
+
+  val numbers = List(1,25,40,4,23)
+  val lt30 = numbers.filter(lessThan30) // List(1,25,5,23)
+  val gt20 = lt30.filter(greaterThan20)
+  println(gt20)
+
+  val lt30lazy = numbers.withFilter(lessThan30) // lazy vals under the hood
+  val gt20lazy = lt30lazy.withFilter(greaterThan20)
+  println
+  gt20lazy.foreach(println)
+
+  // for-comprehensions use withFilter with guards
+  for {
+    a <- List(1,2,3) if a%2 == 0 // use lazy vals!
+  } yield a + 1
+
+  List(1,2,3).withFilter(_%2 == 0).map(_ + 1) //List[Int]
+
+
+  /*
+  Exercise: implement a lazily evaluated, single linked STREAM of elements
+  naturals = MyStream.from(1)( x => x + 1 ) = stream of natural numbers (potentially infinite!)
+  naturals.take(100).foreach(println) // lazily evaluated stream of the first 100 naturals (finite stream)
+  naturals.foreach(println) // will crash - infinite!
+  naturals.map(_*2) // stream of all even numbers (potentially infinite)
+  * */
+
+
+  // Up until now this is nothing but a normal linked list
+  // Lets see what the teacher says.
+  abstract class MyStream[+A] {
+    def isEmpty:Boolean
+    def head:A
+    def tail:MyStream[A]
+
+    def #::[B >: A](element:B):MyStream[B]
+    def ++[B>:A](anotherStream:MyStream[B]):MyStream[B] // concatenate two streams.
+
+    def foreach(f:A=>Unit):Unit
+    def map[B](f:A=>B):MyStream[B]
+    def flatMap[B](f:A=>MyStream[B]):MyStream[B]
+    def filter(predicate:A=>Boolean):MyStream[A]
+
+    def take(n:Int):MyStream[A] // takes the first n elements out of this stream
+    def takeAsList(n:Int):List[A]
+
+  }
+
+  case object EmptyStream extends MyStream[Nothing]
+  {
+
+    def noSuchElementException = throw new NoSuchElementException()
+    def runTimeException = throw new RuntimeException
+
+    override def isEmpty: Boolean = true
+
+    override def head: Nothing = noSuchElementException
+
+    override def tail: MyStream[Nothing] = noSuchElementException
+
+    override def #::[B >: Nothing](element: B): MyStream[B] = new ConsStream[B](element,EmptyStream)
+
+    override def ++[B >: Nothing](anotherStream: MyStream[B]): MyStream[B] = anotherStream
+
+    override def foreach(f: Nothing => Unit): Unit = ()
+
+    override def map[B](f: Nothing => B): MyStream[B] = EmptyStream
+
+    override def flatMap[B](f: Nothing => MyStream[B]): MyStream[B] = EmptyStream
+
+    override def filter(predicate: Nothing => Boolean): MyStream[Nothing] = EmptyStream
+
+    override def take(n: Int): MyStream[Nothing] = EmptyStream
+
+    override def takeAsList(n: Int): List[Nothing] = List()
+  }
+
+
+case class ConsStream[A](h:A,t:MyStream[A]) extends MyStream[A]
+{
+  override def isEmpty: Boolean = true
+
+  override def head: A =  h
+
+  override def tail: MyStream[A] = t
+
+  override def #::[B >: A](element: B): MyStream[B] = new ConsStream[B](element,this)
+
+  override def ++[B >: A](anotherStream: MyStream[B]): MyStream[B] = h #:: (t ++ anotherStream)
+
+  override def foreach(f: A => Unit): Unit = {
+    f(h)
+    t.foreach(f)
+  }
+
+  override def map[B](f: A => B): MyStream[B] = f(h) #:: tail.map(f)
+
+  override def flatMap[B](f: A => MyStream[B]): MyStream[B] = f(h) ++ t.flatMap(f)
+
+  override def filter(predicate: A => Boolean): MyStream[A] =
+    if (predicate(h)) new ConsStream[A](h,t.filter(predicate))
+    else t.filter(predicate)
+
+  override def take(n: Int): MyStream[A] = ???
+
+  override def takeAsList(n: Int): List[A] = ???
+}
+
+  object MyStream{
+    def from[A](start:A)(generator:A=>A):MyStream[A] = ???
+  }
+
 }
