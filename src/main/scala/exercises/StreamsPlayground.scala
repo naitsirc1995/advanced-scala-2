@@ -19,7 +19,7 @@ abstract class MyStream[+A] {
   def tail:MyStream[A]
 
   def #::[B >: A](element:B):MyStream[B]
-  def ++[B>:A](anotherStream:MyStream[B]):MyStream[B] // concatenate two streams.
+  def ++[B>:A](anotherStream: => MyStream[B]):MyStream[B] // concatenate two streams.
 
   def foreach(f:A=>Unit):Unit
   def map[B](f:A=>B):MyStream[B]
@@ -50,7 +50,7 @@ object EmptyStream extends MyStream[Nothing] {
 
   override def #::[B >: Nothing](element: B): MyStream[B] = new Cons(element,this)
 
-  override def ++[B >: Nothing](anotherStream: MyStream[B]): MyStream[B] = anotherStream
+  override def ++[B >: Nothing](anotherStream: => MyStream[B]): MyStream[B] = anotherStream
 
   override def foreach(f: Nothing => Unit): Unit = ()
 
@@ -78,7 +78,7 @@ class Cons[+A](hd:A,tl: => MyStream[A]) extends MyStream[A] {
   val prepended = 1 #:: s = new Cons(1,s)
   * */
   override def #::[B >: A](element: B): MyStream[B] = new Cons(element,this)
-  override def ++[B >: A](anotherStream: MyStream[B]): MyStream[B] = new Cons(head,tail ++ anotherStream)
+  override def ++[B >: A](anotherStream: => MyStream[B]): MyStream[B] = new Cons(head,tail ++ anotherStream)
 
   override def foreach(f: A => Unit): Unit = {
     f(head)
@@ -117,16 +117,30 @@ object MyStream{
 object StreamsPlayground extends App
 {
   val naturals = MyStream.from(1)(_+1)
-  println(naturals.head)
-  println(naturals.tail.head)
-  println(naturals.tail.tail.head)
+//  println(naturals.head)
+//  println(naturals.tail.head)
+//  println(naturals.tail.tail.head)
 
   val startFrom0 = 0 #:: naturals // naturals.#::(0)
-  println(startFrom0.head)
+  //println(startFrom0.head)
 
   //println(startFrom0.take(10000).foreach(println))
 
   // map, flatMap
   //println(startFrom0.map(_*2).take(100).toList())
   println(startFrom0.flatMap(x => new Cons(x,new Cons(x+1,EmptyStream))).take(10).toList())
+  println(startFrom0.filter(_ < 10).take(10).toList())
+
+  // Exercises on streams
+  // 1 - stream of Fibonacci numbers
+  // 2 - stream of prime numbers with Eratosthenes' sieve
+  /*
+  [ 2 3 4...]
+  filter out all numbers divisible by 2 (keep 2 because is prime)
+  [2 3 5 7 9 11 ...]
+  filter out all numbers divisible by 3
+  [ 2 3 5 7 11  13  17 ....]
+  filter out all numbers divisible by 5
+    ....
+  * */
 }
