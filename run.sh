@@ -1,1 +1,1 @@
-mvn scala:run -DmainClass=lectures.part2fp.LazyEvaluation -q
+mvn scala:run -DmainClass=exercises.StreamsPlayground -q
