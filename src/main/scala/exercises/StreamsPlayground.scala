@@ -200,4 +200,6 @@ object StreamsPlayground extends App
 
   println(eratosthenes(MyStream.from(2)(_+1)).take(100).toList())
 
+  //List(3).flatMap(f) = f(x) ++ Nil.flatMap(f) = f(x)
+  // list.flatMap(x => List(x)) = list
 }
