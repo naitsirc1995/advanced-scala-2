@@ -128,8 +128,8 @@ object StreamsPlayground extends App
 
   // map, flatMap
   //println(startFrom0.map(_*2).take(100).toList())
-  println(startFrom0.flatMap(x => new Cons(x,new Cons(x+1,EmptyStream))).take(10).toList())
-  println(startFrom0.filter(_ < 10).take(10).toList())
+//  println(startFrom0.flatMap(x => new Cons(x,new Cons(x+1,EmptyStream))).take(10).toList())
+//  println(startFrom0.filter(_ < 10).take(10).toList())
 
   // Exercises on streams
   // 1 - stream of Fibonacci numbers
@@ -143,4 +143,61 @@ object StreamsPlayground extends App
   filter out all numbers divisible by 5
     ....
   * */
+
+
+  // MY SOLUTION
+  // I might be, not understanding, but I will just use the tail-rec func from the past.
+
+  def fibonacciTailRecursion(n:Int):Int =
+  {
+    println("did I ever enter here ? the result I got was ",n)
+    def fibonacciHelper(
+                         x:Int,
+                         accumulator:Int,
+                         sumCum:Int
+                       ):Int =
+    {
+      if (x<=0) sumCum
+      else fibonacciHelper(
+        x-1,
+        accumulator + sumCum,
+        1 + accumulator
+      )
+    }
+
+    fibonacciHelper(n,0,0)
+  }
+
+  val myFibonacci = MyStream.from(0)(_+2)
+
+  //println(myFibonacci.take(100).toList())
+
+  // In fact I was not understanding. Let's continue.
+
+  //
+
+  /*
+  [first, [ ...
+  [first,fibo(second,first + second
+  * */
+  def fibonacci(first:BigInt,second:BigInt):MyStream[BigInt] =
+    new Cons(first,fibonacci(second,first + second))
+
+  println(fibonacci(1,1).take(100).toList())
+
+  // erathosthenes sieve
+
+  /*
+  [ 2 3 4 5 6 7 8 9 10 11 12 ...]
+  [ 2 3 5 7 9 11 13 ....]
+  [ 2 eratosthenes applied to (numbers filtered by n%2 != 0)]
+  [ 2 3 eratosthenes applied to [ 5 8 9 11 ....] filtered by n%3 != 0
+  [ 2 3 5 ......
+  * */
+  def eratosthenes(numbers:MyStream[Int]):MyStream[Int] =
+    if (numbers.isEmpty) numbers
+    else new Cons(numbers.head,eratosthenes(numbers.tail.filter( _ % numbers.head != 0)))
+
+  println(eratosthenes(MyStream.from(2)(_+1)).take(100).toList())
+
 }
