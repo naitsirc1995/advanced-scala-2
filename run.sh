@@ -1,1 +1,1 @@
-mvn scala:run -DmainClass=lectures.part2fp.Monads -q
+mvn scala:run -DmainClass=lectures.part3concurrency.Intro -q

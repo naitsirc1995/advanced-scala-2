@@ -118,6 +118,4 @@ object Monads extends App
   List(1,2,3).map(_*2) = List(1,2,3).flatMap(x => List(x*2))
   List(List(1,2),List(3,4)).flatten = List(List(1,2),List(3,4)).flatmap(x => x) = List(1,2,3,4)
   * */
-
-
 }
