@@ -143,6 +143,147 @@ object ThreadComunication extends App
     producer.start()
   }
 
-  prodConsLargeBuffer()
+  //prodConsLargeBuffer()
 
+  /*
+  Prod-cons, level 3
+    producer1 -> [? ? ?] -> consumer1
+    producer2 ----^   ^-----consumer2
+  * */
+
+  def multipleProdConsBuffer():Unit = {
+    val buffer:mutable.Queue[Int] = new mutable.Queue[Int]
+    val capacity:Int = 5
+
+    val nConsumers:Int = 3
+    val nProducers:Int = 4
+
+    val consumers: Seq[Thread] =
+      (1 to nConsumers)
+        .map(
+          _ => {
+            new Thread(
+              () => {
+                val random = new Random()
+                while (true) {
+                  buffer.synchronized {
+                    if (buffer.isEmpty) {
+                      println("[consumer] buffer empty, waiting...")
+                      buffer.wait()
+                    }
+
+                    val x = buffer.dequeue()
+                    println("[consumer] consumed " + x)
+
+                    buffer.notify()
+
+                  }
+
+                  Thread.sleep(random.nextInt(250))
+
+                }
+              }
+            )
+          }
+        )
+
+    var i:Int = 0
+    val producers:Seq[Thread] = {
+      (1 to nProducers)
+        .map(
+          _ => new Thread(
+            () => {
+              val random  = new Random()
+
+              while (true) {
+                buffer.synchronized{
+                  if (buffer.length == capacity) {
+                    println("[producer] buffer full, waiting...")
+                    buffer.wait()
+                  }
+
+                  println("[producer] produced value " + i)
+                  buffer.enqueue(i)
+                  buffer.notify()
+                  i += 1
+
+                  Thread.sleep(random.nextInt(500))
+
+                }
+              }
+            }
+          )
+        )
+
+
+
+
+    }
+
+    producers.map(_.start)
+    consumers.map(_.start)
+  }
+
+
+
+  class Consumer(id:Int, buffer:mutable.Queue[Int]) extends Thread {
+    override def run(): Unit = {
+      val random:Random = new Random()
+
+      while (true) {
+
+        buffer.synchronized{
+          /*
+          producer produces value, two Cons are waiting.
+          notify ONE consumer, notifies on buffer
+          notify the other consumer
+          * */
+          while (buffer.isEmpty) {
+            println(s"[consumer $id] buffer is empty, waiting...")
+            buffer.wait()
+          }
+
+          val x:Int = buffer.dequeue() // OOps.!
+          println(s"[consumer $id] value consumed " + x)
+          buffer.notify()
+        }
+
+        Thread.sleep(250)
+      }
+
+    }
+  }
+
+  class Producer(id:Int,buffer:mutable.Queue[Int],capacity:Int) extends Thread {
+    override def run(): Unit = {
+      val random:Random = new Random()
+      var i:Int = 0
+
+      while (true) {
+        buffer.synchronized {
+          while (buffer.length == capacity) {
+            println(s"[producer $id] buffer is full, waiting...")
+            buffer.wait()
+          }
+
+          println(s"[producer $id] producing " + i)
+          buffer.enqueue(i)
+          buffer.notify()
+          i += 1
+        }
+
+        Thread.sleep(500)
+      }
+    }
+  }
+
+  def multiProdCons(nConsumers:Int,nProducers:Int):Unit = {
+    val buffer:mutable.Queue[Int] = new mutable.Queue[Int]
+    val capacity = 20
+
+    (1 to nConsumers).foreach(i => new Consumer(i,buffer).start())
+    (1 to nProducers).foreach(i => new Producer(i,buffer,capacity).start())
+  }
+
+  multiProdCons(3,6)
 }
