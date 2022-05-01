@@ -1,7 +1,7 @@
 package lectures.part3concurrency
 
 import scala.concurrent.{Await, Future, Promise}
-import scala.util.{Failure, Random, Success}
+import scala.util.{Failure, Random, Success, Try}
 import scala.concurrent.duration._
 // important for futures
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -166,4 +166,125 @@ object FuturesPromises extends App
 
   producer.start()
   Thread.sleep(1000)
+
+  /*
+  1) fullfill a future IMMEDIATELY with a value
+  2) inSequence(fa,fb) will run future "b" until is made sure that future "a" has completed
+  3) first(fa,fb) => new future with the first value of the two futures
+  4) last(fa,fb) => new future with the last value
+  5) retryUntil[T](action: () => Future[T], condition: T => Boolean):Future[T]
+  * */
+
+
+  // 1)
+  def futureImmediateValue():Unit = {
+    val immediateFuture:Future[Int] = Future(42)
+
+    immediateFuture.onComplete {
+      case Success(number) => println(s"the number was $number")
+    }
+  }
+
+  // 2)
+
+  object InSequenceObject {
+
+    def inSequence(fa:Future[Int],fb:Future[Int]):Unit = {
+      fa.onComplete {
+        case Success(_) => fb.onComplete {
+          case Success(_) => println(s"The second value was executed after the first one")
+          case Failure(e) => e.printStackTrace()
+        }
+        case Failure(e) => e.printStackTrace()
+      }
+    }
+
+    def execute():Unit = {
+      println("I just started to execute")
+      val fa:Future[Int] = Future {
+        Thread.sleep(250)
+        1
+      }
+
+      val fb:Future[Int] = Future {
+        Thread.sleep(100)
+        2
+      }
+
+      inSequence(fa,fb)
+      Thread.sleep(1000)
+    }
+  }
+
+  //InSequenceObject.execute()
+
+  // last would be very similar, I am just not exited about the thing going on.
+
+//  object RetryUntil {
+//    def retryUntil[T](action: () => Future[T], condition:T => Boolean):Future[T] = {
+//      action().onComplete {
+//        case Success(result) => {
+//          if (condition(result)) Future(result)
+//          else retryUntil(action, condition)
+//        }
+//        case Failure(e) => e.printStackTrace()
+//      }
+//    }
+//  }
+
+  // 1 fulfill  immediately
+  def fulfillImmediately[T](value:T):Future[T] = Future(value)
+  println("Instructor's solution")
+  for {
+    number <- fulfillImmediately(42)
+  } println("The number I got was " + number)
+
+
+  // 2 - insequence
+
+  def inSequence[A,B](first:Future[A],second:Future[B]):Future[B] = first.flatMap(_ => second)
+
+
+  val fa:Future[Int] = Future {
+    Thread.sleep(500)
+    1
+  }
+
+  val fb:Future[Int] = Future {
+    Thread.sleep(100)
+    2
+  }
+
+  inSequence(fa,fb).foreach(println)
+  Thread.sleep(1000)
+
+
+  // 3 -
+  def first[A](fa:Future[A],fb:Future[A]):Future[A] = {
+    val promise = Promise[A]
+
+    def tryComplete(promise:Promise[A],result:Try[A]) = result match {
+      case Success(r) => try {
+        promise.success(r)
+      } catch {
+        case _ =>
+      }
+      case Failure(t) => try {
+        promise.failure(t)
+      } catch {
+        case _ =>
+      }
+    }
+
+    fa.onComplete(result => tryComplete(promise,result))
+
+    fb.onComplete(result => tryComplete(promise, result))
+
+    promise.future
+  }
+
+
+
+
+
 }
