@@ -1,1 +1,1 @@
-mvn scala:run -DmainClass=lectures.part3concurrency.ThreadComunication -q
+mvn scala:run -DmainClass=lectures.part3concurrency.FuturesPromises -q
