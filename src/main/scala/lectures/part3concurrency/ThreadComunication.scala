@@ -82,7 +82,7 @@ object ThreadComunication extends App
     producer.start()
   }
 
-  smartProdCons()
+  //smartProdCons()
 
 
   /*
@@ -285,5 +285,100 @@ object ThreadComunication extends App
     (1 to nProducers).foreach(i => new Producer(i,buffer,capacity).start())
   }
 
-  multiProdCons(3,6)
+  //multiProdCons(3,6)
+
+  /*
+  Exercises.
+  1) think of an example where notifyALL acts in a different way than notify?
+  2) create a deadlock (one thread or multiple thread block each other and they can't continue
+  3) create a livelock
+  * */
+
+
+
+  // 2 creating a deadlock
+
+  // I think creating a deadlock is rather easy. Two guys are trying to access the same info
+  // and they won't be able to do it.
+
+  def creatingDeadLock():Unit = {
+    val buffer:mutable.Queue[Int] = new mutable.Queue[Int]
+    val thread1:Thread = new Thread(() => {
+      while (true) {
+        buffer.synchronized(buffer.enqueue(2))
+      }
+    })
+
+    val thread2:Thread = new Thread(() => {
+      while (true) {
+        buffer.synchronized(buffer.enqueue(3))
+      }
+    })
+
+    val thread3:Thread = new Thread(() => {
+      while (true) {
+        buffer.synchronized{
+          val x = buffer.dequeue()
+          println("The value I currently have is " + x)
+        }
+      }
+    })
+
+    thread1.start()
+    thread2.start()
+  }
+
+//  creatingDeadLock() // this is what I expected, JVM just stays on hold
+  // Now lets see the instructor's solution
+
+  def testNotifyAll():Unit = {
+    val bell = new Object
+
+    (1 to 10).foreach(i => new Thread( () => {
+        bell.synchronized{
+          println(s"[thread $i] waiting")
+          bell.wait()
+          println(s"[thread $i] hooray!")
+        }
+    }).start())
+
+    new Thread(() => {
+      Thread.sleep(2000)
+      println("[announcer] Rock'n roll!")
+      bell.synchronized{
+        bell.notify()
+      }
+    }).start()
+  }
+
+
+  //testNotifyAll()
+
+  // 2 - deadlock
+
+  case class Friend1(name:String) {
+    def bow(other:Friend1) = {
+      this.synchronized{
+        println(s"$this: I am bowing to my friend $other")
+        other.rise(this)
+        println(s"$this: my friend $other has risen")
+      }
+    }
+
+    def rise(other:Friend1) = {
+      this.synchronized{
+        println(s"$this: I am rising to my friend $other")
+      }
+    }
+  }
+
+
+  val sam = Friend1("Sam")
+  val pierre = Friend1("Pierre")
+
+//  new Thread(() => sam.bow(pierre)).start() // sam's lock,    | then pierre's lock
+//  new Thread(() => pierre.bow(sam)).start() // pierre's lock  | then sam's lock
+
+  // 3  - livelock
+
 }
