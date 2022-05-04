@@ -46,6 +46,7 @@ object Intro extends App {
   pool.shutdown()
 
 
+
   println(pool.isShutdown)
 
   def runInParallel = {

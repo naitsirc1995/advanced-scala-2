@@ -1,1 +1,1 @@
-mvn scala:run -DmainClass=lectures.part3concurrency.FuturesPromises -q
+mvn scala:run -DmainClass=lectures.part4implicits.ImplicitsIntro -q
