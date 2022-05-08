@@ -1,7 +1,7 @@
 package lectures.part4implicits
 
-object TypeClasses extends App {
-  println("Awesome lecture !!")
+object TypeClassesAgain extends App {
+
   trait HTMLWritable {
     def toHTML:String
   }
