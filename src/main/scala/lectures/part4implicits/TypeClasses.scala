@@ -106,8 +106,19 @@ object TypeClasses extends App {
   }
 
 
+  case class Vale(name:String)
+
+  implicit object ValeSerializer extends HTMLSerializer[Vale] {
+    override def serialize(value: Vale): String = s"${value.name} this is great !!"
+  }
+
+  val vale = Vale("Vale")
+
+
   println(HTMLSerializer.serialize(42))
   println(HTMLSerializer.serialize(john))
+  println("Vale this is great !!")
+  println(HTMLSerializer.serialize(vale))
 
   // access to the entire type class interface
   println(HTMLSerializer[User].serialize(john))
