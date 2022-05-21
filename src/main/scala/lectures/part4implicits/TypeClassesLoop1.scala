@@ -116,4 +116,5 @@ object TypeClassesLoop1 extends App {
   println(Equal[User](john,anotherJohn))
 
   // AD-HOC polymorphism
+
 }
