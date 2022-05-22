@@ -59,30 +59,6 @@ object TypeClassesLoop1 extends App {
     override def serialize(user: User): String = s"<div>${user.name}/>"
   }
 
-  // TYPE CLASS
-  trait MyTypeClassTemplate[T] {
-    def action(value:T):String
-  }
-
-  object MyTypeClassTemplate {
-    def apply[T](implicit instance:MyTypeClassTemplate[T]): MyTypeClassTemplate[T] = instance
-  }
-  /*
-  Equality
-  * */
-  trait Equal[T] {
-    def apply(a:T,b:T):Boolean
-  }
-
-  implicit object NameEquality extends Equal[User] {
-    override def apply(a: User, b: User): Boolean = a.name == b.name
-  }
-
-  object FullEquality extends Equal[User] {
-    override def apply(a:User,b:User):Boolean = a.name == b.name && a.email == b.email
-  }
-
-
   // part 2
   object HTMLSerializer {
     def serialize[T](value:T)(implicit serializer:HTMLSerializer[T]):String =
@@ -102,19 +78,13 @@ object TypeClassesLoop1 extends App {
   // access to the entire type class interface
   println(HTMLSerializer[User].serialize(john))
 
-
-
-  /*
-  Exercise: implement the TC patter for the Equality tc.
-  * */
-  object Equal {
-    def apply[T](a:T,b:T)(implicit equalizer:Equal[T]):Boolean =
-      equalizer.apply(a,b)
+  //part3
+  implicit class HTMLEnrichment[T](value:T) {
+    def toHTML(serializer:HTMLSerializer[T]):String = serializer.serialize(value)
   }
 
-  val anotherJohn = User("John",45,"anotherJohn@rockthejvm.com")
-  println(Equal[User](john,anotherJohn))
+  println(john.toHTML(UserSerializer))
 
-  // AD-HOC polymorphism
+
 
 }
