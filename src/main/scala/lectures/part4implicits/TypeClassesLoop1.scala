@@ -80,10 +80,16 @@ object TypeClassesLoop1 extends App {
 
   //part3
   implicit class HTMLEnrichment[T](value:T) {
-    def toHTML(serializer:HTMLSerializer[T]):String = serializer.serialize(value)
+    def toHTML(implicit serializer:HTMLSerializer[T]):String = serializer.serialize(value)
   }
 
-  println(john.toHTML(UserSerializer))
+  println(john.toHTML) // println(new HTMLEnrichment[User](user).toHTML(UserSerializer))
+  // COOL!
+  /*
+    - extend to new types
+  * */
+
+  println(2.toHTML)
 
 
 

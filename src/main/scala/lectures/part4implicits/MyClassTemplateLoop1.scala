@@ -1,10 +1,10 @@
 package lectures.part4implicits
 
 // TYPE CLASS
-trait MyTypeClassTemplate[T] {
+trait MyTypeClassTemplateLoop1[T] {
   def action(value:T):String
 }
 
-object MyTypeClassTemplate {
+object MyTypeClassTemplateLoop1 {
   def apply[T](implicit instance:MyTypeClassTemplate[T]): MyTypeClassTemplate[T] = instance
 }
