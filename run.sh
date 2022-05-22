@@ -1,1 +1,1 @@
-mvn scala:run -DmainClass=lectures.part4implicits.JSONSerializationLoop1 -q
+mvn scala:run -DmainClass=lectures.part4implicits.TypeClassesLoop1 -q
