@@ -1,1 +1,1 @@
-mvn scala:run -DmainClass=lectures.part4implicits.MagnetPattern -q
+mvn scala:run -DmainClass=lectures.part5ts.RockingInheritance -q
