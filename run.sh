@@ -1,1 +1,1 @@
-mvn scala:run -DmainClass=lectures.part5ts.RockingInheritance -q
+mvn scala:run -DmainClass=lectures.part5ts.Variance -q
