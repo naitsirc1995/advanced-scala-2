@@ -88,5 +88,18 @@ object Variance extends App {
     val dogShop:PetShop[Dogs] = catShop
     dogShop.get(true) // EVIL CAT!
     * */
+    def get[S<:T](isItaPuppy:Boolean,defaultAnimal:S):S = defaultAnimal
   }
+
+  val shop:Petshop[Dog] = new Petshop[Animal]
+  //val evilCat = shop.get(true,new Cat)
+
+  class TerraNova extends Dog
+  val bigFurry = shop.get(true,new TerraNova)
+
+  /*
+  Big Rule
+    - method arguments are in CONTRAVARIANT position
+    - return types are in COVARIANT position
+  * */
 }
