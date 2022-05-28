@@ -66,4 +66,7 @@ object RockingInheritanceLoop1 extends App {
     }
   }
 
+  val color = new White
+  color.print
+
 }
