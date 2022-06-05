@@ -100,10 +100,30 @@ object VarianceLoop1 extends App {
 
 
   /*
-  Big rule
+  Big Rule
     - method arguments are in CONTRAVARIANT position
     - return types are in COVARIANT position
   * */
+
+  /*
+  * 1. Invariant,covariant, contravariant Parking[T](things List[T])
+  *   Parking[T](things:List[T]{
+  *     park(vehicle:T)
+  *     impound(vehicles:List[T])
+  *     checkVehicles(conditions:String):List[T]
+  * }
+  * 2. used someone else's API: IList[T]
+  * 3. Parking = monad!
+  *   - flatMap
+  *
+  * */
+
+  class Vehicle
+  class Bike extends Vehicle
+  class Car extends Vehicle
+
+  class IList[T]
+
 
 
 
