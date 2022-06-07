@@ -1,1 +1,1 @@
-mvn scala:run -DmainClass=lectures.part5ts.VarianceLoop2 -q
+mvn scala:run -DmainClass=lectures.part5ts.PathDependentTypes -q
