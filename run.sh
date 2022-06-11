@@ -1,1 +1,1 @@
-mvn scala:run -DmainClass=lectures.part5ts.PathDependentTypes -q
+mvn scala:run -DmainClass=lectures.part5ts.HigherKindedTypes -q

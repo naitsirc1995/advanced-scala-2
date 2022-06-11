@@ -101,7 +101,7 @@ object StructuralTypes extends App {
   // 2.
   object HeadEqualizer {
     type Headable[T] = { def head:T}
-    def ===[T](a:Headable[T],b:Headable[T]):Boolean = a.head() == b.head()
+    //def ===[T](a:Headable[T],b:Headable[T]):Boolean = a.head() == b.head()
   }
 
   /*
@@ -111,7 +111,7 @@ object StructuralTypes extends App {
   val brainzList = CBCons(new Brain,CBNil)
   val stringList = CBCons("Brainz",CBNil)
 
-  HeadEqualizer.===(brainzList,new Human)
+  //HeadEqualizer.===(brainzList,new Human)
   // problem:
-  HeadEqualizer.===(new Human,stringList) // not types safe
+  //HeadEqualizer.===(new Human,stringList) // not types safe
 }
